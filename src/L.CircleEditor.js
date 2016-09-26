@@ -5,7 +5,11 @@
 L.CircleEditor = L.Circle.extend ({
 
     options: {
-        icon: new L.DivIcon({
+        centerIcon: new L.DivIcon({
+            iconSize: new L.Point(8, 8),
+            className: 'leaflet-div-icon leaflet-editing-icon'
+        }),
+        extendIcon: new L.DivIcon({
             iconSize: new L.Point(8, 8),
             className: 'leaflet-div-icon leaflet-editing-icon'
         }),
@@ -63,14 +67,14 @@ L.CircleEditor = L.Circle.extend ({
     },
 
     _createMarker: function (latlng, index, isCenter) {
-        var marker = new L.Marker(latlng, {
-            draggable: true,
-            icon: this.options.icon
-        });
-
         if (isCenter === undefined) {
             isCenter = false;
         }
+        var icon = isCenter ?  this.options.centerIcon : this.options.extendIcon; 
+        var marker = new L.Marker(latlng, {
+            draggable: true,
+            icon: icon
+        });
         //console.log("this is center point: " + isCenter);
 
         marker._origLatLng = latlng;
@@ -81,7 +85,8 @@ L.CircleEditor = L.Circle.extend ({
             marker.on('drag', this._onCenterMove, this)
                   .on('dragend', this._onCenterMoveEnd, this);
         } else {
-            marker.on('drag', this._onMarkerDrag, this);
+            marker.on('drag', this._onMarkerDragStart, this)
+                  .on('dragend', this._onMarkerDragEnd, this);
         }
         marker.on('dragend', this._fireEdit, this)
               .on('mouseover', this._onMouseOver, this)
@@ -140,7 +145,7 @@ L.CircleEditor = L.Circle.extend ({
         this.fire('centerchange');
     },
 
-    _onMarkerDrag: function (e) {
+    _onMarkerDragStart: function (e) {
         var marker = e.target;
         //console.log("marker drag - START");
         var center = this._markers[0].getLatLng();
@@ -152,10 +157,14 @@ L.CircleEditor = L.Circle.extend ({
         
         this.redraw();
         //console.log("END");
+        this.fire('radiuschangestart');
+    },
 
-        this.fire('radiuschange');
+    _onMarkerDragEnd: function (e) {
+        this.fire('radiuschangeend');
     },
 
     centerchange: function() {},
-    radiuschange: function() {}
+    radiuschangeend: function() {},
+    radiuschangestart: function(){}
 });
