@@ -16,10 +16,47 @@ To use it, it is the same way as initializing a Circle, with the difference that
 Code example:
 
 ```
+    var circleMarker;
+    function createCircleMarker(point, radius){
+		if(circleMarker){
+			map.removeLayer(circleMarker);
+		}
+		var centerIcon = L.divIcon({ 
+						html: '<div class="leaflet-editing-icon leaflet-circle-center-icon"><span class="glyphicon glyphicon-plus"></span></div>',
+						iconSize: new L.Point(22, 22),
+						className: 'leaflet-circle-center'
+					    });
+		var extendIcon = L.divIcon({ 
+						html: '<span class="circle-marker-radius-label">' + (radius - circleMarkerRadiusMargin).toFixed(2) + 'km</span><div class="leaflet-editing-icon leaflet-circle-extend-icon"><span class="glyphicon glyphicon-resize-horizontal"></span></div>', 
+						iconSize: new L.Point(22, 16),
+						className: 'leaflet-circle-extend'
+					    });
+		
+		circleMarker = new L.CircleEditor(point, radius, { centerIcon: centerIcon, extendIcon: extendIcon, color: '#ff9900', fill: false });
+		map.addLayer(circleMarker);
+		
+		
+		circleMarker.on('radiuschangestart', function(e){
+			/* should have a function that gets the radius of circle marker (with some buffering) because your marker icons 
+			 * may seem like they fall outside of the circle marker depending on the shape. This is because the latlng
+			 * specified is for the center of the divIcon and not the bottom of the icon
+			 */
+			var radius = parseFloat(getCircleMarkerRadius(true) * 1000).toFixed(2);
+			$('.circle-marker-radius-label').html( radius + 'km');
+		});
+		circleMarker.on('radiuschangeend', function(e){
+			/* some function to update the map markers */
+		});
+		circleMarker.on('centerchange', function(e){
+			/* some function to update the map markers */
+		});
+	}
     var radius = 500; /*radius in meters*/
     var eCircle = new L.CircleEditor(locationLatLng, radius, circleOptions);
     map.addLayer(eCircle);
 ```
+
+
 
 The circle editor has one additional feature. The dragger icon can be set (with css) to grow when the mouse is over it, this makes the dragging action of the center or its radius easier for the user. Just set the option called __'extendedIconClass'__ to any of the styles currenlty set in the css file:
 
