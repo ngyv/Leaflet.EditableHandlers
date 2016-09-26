@@ -51,9 +51,7 @@ Code example:
 			/* some function to update the map markers */
 		});
 	}
-    var radius = 500; /*radius in meters*/
-    var eCircle = new L.CircleEditor(locationLatLng, radius, circleOptions);
-    map.addLayer(eCircle);
+
 ```
 
 
